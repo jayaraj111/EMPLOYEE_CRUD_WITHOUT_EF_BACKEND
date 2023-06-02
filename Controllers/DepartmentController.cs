@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace employeeSampleBackEndSQL.Controllers;
 
@@ -8,27 +9,33 @@ namespace employeeSampleBackEndSQL.Controllers;
 [Route("[controller]")]
 public class DepartmentController : ControllerBase
 {
-    
+
     private readonly ILogger<WeatherForecastController> _logger;
-     string constr = @"Server=(localdb)\MSSQLLocalDB;Database=EmployeeCrud;Integrated Security=true;";
+
+    string constr = @"Server=(localdb)\MSSQLLocalDB;Database=EmployeeCrud;Integrated Security=true;";
+    private readonly IConfiguration _configuration;
 
 
-    public DepartmentController(ILogger<WeatherForecastController> logger)
+
+
+    public DepartmentController(ILogger<WeatherForecastController> logger, IConfiguration configuration)
     {
         _logger = logger;
+        _configuration = configuration;
     }
 
-   
-  [HttpGet("GetDepartment")]
-     public List<Department> GetDepartments()
+    // string myDb1ConnectionString = _configuration.GetConnectionString("myDb1");
+
+
+
+    [HttpGet("GetDepartment")]
+    public List<Department> GetDepartments()
     {
         List<Department> departments = new List<Department>();
-      
-       
-       
 
+        string connString = this._configuration.GetConnectionString("sqlconnectionstring");
 
-        using (SqlConnection con = new SqlConnection(constr))
+        using (SqlConnection con = new SqlConnection(connString))
         {
             string query = "select departmentId,departmentName from department";
             using (SqlCommand cmd = new SqlCommand(query, con))
@@ -48,7 +55,7 @@ public class DepartmentController : ControllerBase
                 con.Close();
             }
         }
- 
+
         return departments;
     }
 
